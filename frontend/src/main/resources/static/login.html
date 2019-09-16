@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>登录</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/bootstrap/css/bootstrap.min.css" /><!-- bootstrap -->
+    <script type="text/javascript" src="/bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/jquery-validation/jquery.validate.min.js"></script> <!-- jquery-validator -->
+    <script type="text/javascript" src="/jquery-validation/localization/messages_zh.min.js"></script>
+    <script type="text/javascript" src="/layer/layer.js"></script><!-- layer -->
+    <script type="text/javascript" src="/js/md5.min.js"></script><!-- md5.js -->
+    <script type="text/javascript" src="/js/common.js"></script><!-- common.js -->
+
+    <script>
+         function doLogin() {
+             var username = $("#mobile").val();
+             var password = $("#password").val();
+             password = "" + passsword_salt.charAt(0) + passsword_salt.charAt(1) + password + passsword_salt.charAt(4) + passsword_salt.charAt(5);
+             password = md5(password);
+             $.ajax({
+                 url:"http://localhost:9000/member/token/login",
+                 type:"post",
+                 data:{username:username,password:password},
+                 success:function (data) {
+                     if (data.code==200){
+                         window.location.href="goods.html";
+                     }else{
+                         layer.msg(data.msg)
+                     }
+                 },
+                 error:function (data) {
+                     layer.msg("系统内部异常")
+                 }
+
+             })
+
+         }
+    </script>
+
+</head>
+<body>
+<form name="loginForm" id="loginForm" method="post"  style="width:50%; margin:0 auto">
+    <h2 style="text-align:center; margin-bottom: 20px">用户登录</h2>
+    <div class="form-group">
+        <div class="row">
+            <label class="form-label col-md-4">请输入手机号码</label>
+            <div class="col-md-5">
+                <input id="mobile" name = "mobile" class="form-control" type="text" placeholder="手机号码" required="true"  minlength="11" maxlength="11" value="13088889999" />
+            </div>
+            <div class="col-md-1">
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="row">
+            <label class="form-label col-md-4">请输入密码</label>
+            <div class="col-md-5">
+                <input id="password" name="password" class="form-control" type="password"  placeholder="密码" required="true" minlength="6" maxlength="16" value="123456" />
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-5">
+            <button class="btn btn-primary btn-block" type="reset" onclick="reset()">重置</button>
+        </div>
+        <div class="col-md-5">
+            <button class="btn btn-primary btn-block" type="button" onclick="doLogin()">登录</button>
+        </div>
+    </div>
+</form>
+</body>
+</html>

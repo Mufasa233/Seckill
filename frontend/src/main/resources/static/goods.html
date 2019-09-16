@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>商品列表</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/bootstrap/css/bootstrap.min.css" /><!-- bootstrap -->
+    <script type="text/javascript" src="/bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/jquery-validation/jquery.validate.min.js"></script> <!-- jquery-validator -->
+    <script type="text/javascript" src="/jquery-validation/localization/messages_zh.min.js"></script>
+    <script type="text/javascript" src="/layer/layer.js"></script><!-- layer -->
+    <script type="text/javascript" src="/js/md5.min.js"></script><!-- md5.js -->
+    <script type="text/javascript" src="/js/common.js"></script><!-- common.js -->
+</head>
+<body>
+<div class="panel panel-default">
+    <div class="panel-heading">秒杀商品列表</div>
+    <table class="table" id="goodlist">
+        <tr><td>商品名称</td><td>商品图片</td><td>商品原价</td><td>秒杀价</td><td>库存数量</td><td>详情</td></tr>
+    </table>
+</div>
+
+<script>
+    String.prototype.format = function() {
+        if(arguments.length == 0) return this;
+        var obj = arguments[0];
+        var s = this;
+        for(var key in obj) {
+            s = s.replace(new RegExp("\\{\\{" + key + "\\}\\}", "g"), obj[key]);
+        }
+        return s;
+    }
+    $(function(){
+        $.ajax({
+            url:'http://localhost:9000/seckill/seckillGood/query',
+            type:"GET",
+            xhrFields: { withCredentials: true },//withCredentials: true表示在发送跨域请求的时候需要把cookie信息带上.
+            success:function(data){
+                if(data.code==200){
+                    render(data.data);
+                }else{
+                    layer.msg(data.msg);
+                }
+            }
+        });
+    });
+    function render(goodList){
+        for(var i=0;i<goodList.length;i++){
+            $("#goodlist").append(template.format(goodList[i]));
+        }
+    }
+    var template = "<tr>\n" +
+        "            <td>{{goodName}}</td>\n" +
+        "            <td ><img src=\"{{goodImg}}\" width=\"100\" height=\"100\" /></td>\n" +
+        "            <td>{{goodPrice}}</td>\n" +
+        "            <td>{{seckillPrice}}</td>\n" +
+        "            <td>{{stockCount}}</td>\n" +
+        "            <td><a href=\"/good_detail.html?goodId={{id}}\">详情</a></td>\n" +
+        "        </tr>"
+
+</script>
+</body>
+</html>

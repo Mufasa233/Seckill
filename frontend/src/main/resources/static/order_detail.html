@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>商品详情</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/bootstrap/css/bootstrap.min.css" /><!-- bootstrap -->
+    <script type="text/javascript" src="/bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/jquery-validation/jquery.validate.min.js"></script> <!-- jquery-validator -->
+    <script type="text/javascript" src="/jquery-validation/localization/messages_zh.min.js"></script>
+    <script type="text/javascript" src="/layer/layer.js"></script><!-- layer -->
+    <script type="text/javascript" src="/js/md5.min.js"></script><!-- md5.js -->
+    <script type="text/javascript" src="/js/common.js"></script><!-- common.js -->
+    <script type="text/javascript" src="/js/paySocket.js"></script><!-- common.js -->
+</head>
+<body>
+<div class="panel panel-default"  style="height:100%;background-color:rgba(222,222,222,0.8)">
+    <div class="panel-heading">秒杀订单详情</div>
+    <table class="table" id="goodslist">
+        <tr>
+            <td>订单编号</td>
+            <td colspan="3" id="orderNo"></td>
+        </tr>
+        <tr>
+            <td>商品名称</td>
+            <td colspan="3" id="goodName"></td>
+        </tr>
+        <tr>
+            <td>商品图片</td>
+            <td colspan="2"><img id="goodImg"  width="200" height="200" /></td>
+        </tr>
+        <tr>
+            <td>订单价格</td>
+            <td colspan="2" id="seckillPrice"></td>
+        </tr>
+        <tr>
+            <td>下单时间</td>
+            <td colspan="2" id="createDate"></td>
+        </tr>
+        <tr>
+            <td>订单状态</td>
+            <td class="status_0" style="display: none">
+                未支付
+                <button class="btn btn-primary btn-block" type="button" id="payButton" onclick="pay()">立即支付</button>
+            </td>
+            <td class="status_1" style="display: none">
+                已支付
+            </td>
+            <td class="status_4" style="display: none">
+                订单已取消(订单超时)
+            </td>
+        </tr>
+        <tr>
+            <td>收货人</td>
+            <td colspan="2">叩丁狼  13088889999</td>
+        </tr>
+        <tr>
+            <td>收货地址</td>
+            <td colspan="2">广州市天河区棠下街道涌东路大地商务港603</td>
+        </tr>
+    </table>
+</div>
+<script>
+    $(function(){
+        var orderNo = getQueryString("orderNo");
+        console.log(orderNo)
+        $.ajax({
+            url:'http://localhost:9000/seckill/seckill/findSeckillOrderByNo?orderNo='+orderNo,
+            type:"GET",
+            success:function(data){
+                if(data.code==200){
+                    render(data.data)
+                }else{
+                    layer.msg(data.msg);
+                }
+            }
+        });
+    })
+
+    function render(orderInfo) {
+        $("#orderNo").html(orderInfo.orderNo)
+        $("#goodName").html(orderInfo.goodName)
+        $("#goodImg").prop("src",orderInfo.goodImg)
+        $("#seckillPrice").html(orderInfo.seckillPrice)
+        $("#createDate").html(orderInfo.createDate)
+        $(".status_"+orderInfo.status).show()
+    }
+</script>
+</body>
+</html>

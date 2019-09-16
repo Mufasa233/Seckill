@@ -1,0 +1,7 @@
+server:
+  port: 9000
+zuul:
+  host:
+    socket-timeout-millis: 60000  #zuul的socket超时设置
+    connect-timeout-millis: 60000 #zuul的connect超时设置
+  forceOriginalQueryStringEncoding: true #强制采用原始请求的编码格式，即不对Get请求参数做编解码

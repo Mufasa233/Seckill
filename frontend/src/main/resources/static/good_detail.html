@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<head>
+    <title>商品详情</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/bootstrap/css/bootstrap.min.css"/><!-- bootstrap -->
+    <script type="text/javascript" src="/bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/jquery-validation/jquery.validate.min.js"></script> <!-- jquery-validator -->
+    <script type="text/javascript" src="/jquery-validation/localization/messages_zh.min.js"></script>
+    <script type="text/javascript" src="/layer/layer.js"></script><!-- layer -->
+    <script type="text/javascript" src="/js/md5.min.js"></script><!-- md5.js -->
+    <script type="text/javascript" src="/js/common.js"></script><!-- common.js -->
+    <script type="text/javascript" src="/js/socket.js"></script><!-- common.js -->
+</head>
+<body>
+<div class="panel panel-default">
+    <div class="panel-heading">秒杀商品详情</div>
+    <div class="panel-body">
+        <div id="userTip" style="display: none">
+            <span> 您还没有登录，请<a href="/login.html">登陆</a>后再操作<br/></span>
+        </div>
+        <span>没有收货地址的提示。。。</span>
+    </div>
+    <table class="table">
+        <tr>
+            <td>商品名称</td>
+            <td colspan="3" id="goodName"></td>
+        </tr>
+        <tr>
+            <td>商品图片</td>
+            <td colspan="3"><img id="goodImg" width="200" height="200"/></td>
+        </tr>
+        <tr>
+            <td>秒杀开始时间</td>
+            <td id="startDate"></td>
+            <td id="seckillTip">
+            </td>
+            <td>
+                <img id="verifyCodeImg" width="80" height="32" onclick="initVerifyCodeImg()" style="display: none">
+                <input id="verifyCode" style="display: none">
+                <button class="btn btn-primary btn-block" type="button" id="buyButton" onclick="doSeckill()">立即秒杀
+                </button>
+            </td>
+        </tr>
+        <tr>
+            <td>商品原价</td>
+            <td colspan="3" id="goodPrice"></td>
+        </tr>
+        <tr>
+            <td>秒杀价</td>
+            <td colspan="3" id="seckillPrice"></td>
+        </tr>
+        <tr>
+            <td>库存数量</td>
+            <td colspan="3" id="stockCount"></td>
+        </tr>
+    </table>
+</div>
+<script>
+
+    // 定义开始剩余时间, 定义结束时间
+    var startRemainSeconds;
+    var endRemainSeconds;
+    var time;
+    var goodId;
+    var uuid;
+    var userId;
+    /*在页面加载完毕之后 开始查询商品信息 并且显示在页面**/
+    $(function () {
+        //开始查询商品信息
+        goodId = getQueryString("goodId");
+        //初始化商品信息
+        initGood(goodId)
+        initUser()
+        //生成一个uuid
+        getUuid(userId);
+        //禁用秒杀按钮
+        $("#buyButton").prop("disabled", true);
+
+    })
+
+
+    /*开始秒杀操作*/
+    function doSeckill() {
+        $.ajax({
+            url: 'http://localhost:9000/seckill/seckill/doSeckill',
+            type: "POST",
+            data: {goodId: goodId},
+            success: function (data) {
+                if (data.code == 200) {
+                    //下单成功之后,创建一个websocket
+                    createScoket(uuid);
+                    //跳转到订单详细页面
+                    /*window.location.href="http://localhost/order_detail.html?orderNo="+data.data;
+                    console.log(data.data);*/
+                } else {
+                    layer.msg(data.msg);
+                }
+            }
+        });
+    }
+
+    function initUser() {
+        $.ajax({
+            url: 'http://localhost:9000/member/token/getCurrentUser',
+            type: "GET",
+            xhrFields: {withCredentials: true},//withCredentials: true表示在发送跨域请求的时候需要把cookie信息带上.
+            success: function (data) {
+                if (data.code == 200) {
+                    userId = data.data;//获取当前用户
+                    console.log(userId);
+                    if (!userId) {
+                        $("#userTip").show();
+                    }
+                } else {
+                    layer.msg(data.msg);
+                }
+            }
+        });
+    }
+
+    function initGood(goodId) {
+        $.ajax({
+            url: 'http://localhost:9000/seckill/seckillGood/findById?id=' + goodId,
+            type: "GET",
+            xhrFields: {withCredentials: true},//withCredentials: true表示在发送跨域请求的时候需要把cookie信息带上.
+            success: function (data) {
+                if (data.code == 200) {
+                    render(data.data); //开始渲染数据
+                    //开始获取开始时间,和结束时间, 并且和当前时间比较
+                    var now = new Date();
+                    startRemainSeconds = parseInt((new Date(data.data.startDate).getTime() - now.getTime()) / 1000);
+                    endRemainSeconds = parseInt((new Date(data.data.endDate).getTime() - now.getTime()) / 1000);
+                    show();
+                    //每隔1s中 执行show方法
+                    time = setInterval(show, 1000)
+                } else {
+                    layer.msg(data.msg);
+                }
+            }
+        });
+    }
+
+    function render(good) {
+        $("#goodName").html(good.goodName)
+        $("#goodImg").prop("src", good.goodImg)
+        $("#startDate").html(good.startDate)
+        $("#goodPrice").html(good.goodPrice)
+        $("#seckillPrice").html(good.seckillPrice)
+        $("#stockCount").html(good.stockCount)
+    }
+
+    function show() {
+        startRemainSeconds--;
+        endRemainSeconds--;
+        //活动还没开始
+        if (startRemainSeconds > 0) {
+            $("#seckillTip").html("距离活动开始还有" + startRemainSeconds + "s")
+        } else if (startRemainSeconds <= 0 && endRemainSeconds > 0) {
+            $("#seckillTip").html("正在抢购中")
+            //放开抢购按钮
+            $("#buyButton").prop("disabled", false);
+        } else {
+            $("#seckillTip").html("活动已经结束")
+            $("#buyButton").prop("disabled", true);
+            clearInterval(time)
+        }
+    }
+</script>
+</body>
+</html>

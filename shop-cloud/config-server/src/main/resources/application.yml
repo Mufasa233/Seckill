@@ -1,0 +1,16 @@
+server:
+  port: 9100
+spring:
+  application:
+    name: config-server
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://gitee.com/Mufasa233/cloud-shop-config.git
+          username: Mufasa233
+          password: w87330563
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/

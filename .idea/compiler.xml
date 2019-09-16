@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="member-api" />
+        <module name="eureka-server" />
+        <module name="shop-common" />
+        <module name="config-server" />
+        <module name="zuul-server" />
+        <module name="seckill-server" />
+        <module name="goods-server" />
+        <module name="frontend" />
+        <module name="member-server" />
+        <module name="seckill-api" />
+        <module name="goods-api" />
+        <module name="redis-spring-boot-starter" />
+        <module name="websocket-server" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="goodsapi" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="config-server" options="-parameters" />
+      <module name="eureka-server" options="-parameters" />
+      <module name="frontend" options="-parameters" />
+      <module name="goods-api" options="-parameters" />
+      <module name="goods-server" options="-parameters" />
+      <module name="goodsapi" options="-parameters" />
+      <module name="member-api" options="-parameters" />
+      <module name="member-server" options="-parameters" />
+      <module name="redis-spring-boot-starter" options="-parameters" />
+      <module name="seckill-api" options="-parameters" />
+      <module name="seckill-server" options="-parameters" />
+      <module name="shop-common" options="-parameters" />
+      <module name="websocket-server" options="-parameters" />
+      <module name="zuul-server" options="-parameters" />
+    </option>
+  </component>
+</project>
